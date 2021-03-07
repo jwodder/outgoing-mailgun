@@ -4,11 +4,11 @@ outgoing extension for Mailgun
 Visit <https://github.com/jwodder/outgoing-mailgun> for more information.
 """
 
-__version__      = '0.1.0.dev1'
-__author__       = 'John Thorvald Wodder II'
-__author_email__ = 'outgoing-mailgun@varonathe.org'
-__license__      = 'MIT'
-__url__          = 'https://github.com/jwodder/outgoing-mailgun'
+__version__ = "0.1.0.dev1"
+__author__ = "John Thorvald Wodder II"
+__author_email__ = "outgoing-mailgun@varonathe.org"
+__license__ = "MIT"
+__url__ = "https://github.com/jwodder/outgoing-mailgun"
 
 from datetime import datetime
 from email.headerregistry import AddressHeader
@@ -25,12 +25,14 @@ if sys.version_info[:2] >= (3, 8):
 else:
     from typing_extensions import Literal
 
+
 class MailgunPassword(Password):
     @staticmethod
     def host(values: Dict[str, Any]) -> str:
         return "api.mailgun.net"
 
     username = "domain"
+
 
 class MailgunSender(OpenClosable):
     configpath: Optional[Path]
@@ -41,8 +43,9 @@ class MailgunSender(OpenClosable):
     dkim: Optional[bool]
     testmode: Optional[bool]
     tracking: Optional[bool]
-    tracking_clicks: Optional[Literal[False, True, "htmlonly"]] \
-        = Field(alias="tracking-clicks")
+    tracking_clicks: Optional[Literal[False, True, "htmlonly"]] = Field(
+        alias="tracking-clicks"
+    )
     tracking_opens: Optional[bool] = Field(alias="tracking-opens")
     headers: Dict[str, str] = Field(default_factory=dict)
     variables: Dict[str, str] = Field(default_factory=dict)
@@ -77,9 +80,9 @@ class MailgunSender(OpenClosable):
                 data["o:tracking-clicks"] = yesno(self.tracking_clicks)
             if self.tracking_opens is not None:
                 data["o:tracking-opens"] = yesno(self.tracking_opens)
-            for k,v in self.headers.items():
+            for k, v in self.headers.items():
                 data[f"h:{k}"] = v
-            for k,v in self.variables.items():
+            for k, v in self.variables.items():
                 data[f"v:{k}"] = v
             r = self._client.post(
                 f"https://api.mailgun.net/v3/{self.domain}/messages.mime",
@@ -97,6 +100,7 @@ def extract_recipients(msg: EmailMessage) -> Set[str]:
             for addr in header.addresses:
                 recipients.add(addr.addr_spec)
     return recipients
+
 
 def yesno(b: Union[bool, str]) -> str:
     if isinstance(b, bool):

@@ -4,6 +4,7 @@ from pydantic import SecretStr
 import pytest
 from outgoing_mailgun import MailgunSender
 
+
 def test_mailgun_construct_basic(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
