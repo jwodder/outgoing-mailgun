@@ -1,6 +1,14 @@
 """
 outgoing extension for Mailgun
 
+``outgoing-mailgun`` is an extension for outgoing_ that adds the ability to
+send e-mails via Mailgun_.  Simply install ``outgoing-mailgun`` alongside
+``outgoing``, and you'll be able to specify "mailgun" as a sending method in
+your ``outgoing`` configuration.
+
+.. _outgoing: https://github.com/jwodder/outgoing
+.. _Mailgun: https://www.mailgun.com
+
 Visit <https://github.com/jwodder/outgoing-mailgun> for more information.
 """
 
