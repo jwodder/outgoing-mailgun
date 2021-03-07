@@ -37,19 +37,20 @@ class MailgunSender(OpenClosable):
     domain: str
     api_key: MailgunPassword = Field(alias="api-key")
     tags: List[str] = Field(default_factory=list)
-    deliverytime = Optional[datetime]
+    deliverytime: Optional[datetime]
     dkim: Optional[bool]
     testmode: Optional[bool]
     tracking: Optional[bool]
-    tracking_clicks: Optional[Literal[False, True, "htmlonly"]] = Field(alias="tracking-clicks")
+    tracking_clicks: Optional[Literal[False, True, "htmlonly"]] \
+        = Field(alias="tracking-clicks")
     tracking_opens: Optional[bool] = Field(alias="tracking-opens")
     headers: Dict[str, str] = Field(default_factory=dict)
     variables: Dict[str, str] = Field(default_factory=dict)
-    _client: requests.Session = PrivateAttr(None)
+    _client: Optional[requests.Session] = PrivateAttr(None)
 
     def open(self) -> None:
         self._client = requests.Session()
-        self._client.auth = ("api", self.api_key)
+        self._client.auth = ("api", self.api_key.get_secret_value())
 
     def close(self) -> None:
         if self._client is None:
@@ -60,6 +61,7 @@ class MailgunSender(OpenClosable):
     def send(self, msg: EmailMessage) -> None:
         with self:
             assert self._client is not None
+            data: Dict[str, Union[str, List[str]]]
             data = {"to": ", ".join(extract_recipients(msg))}
             if self.tags:
                 data["o:tag"] = self.tags
@@ -97,9 +99,7 @@ def extract_recipients(msg: EmailMessage) -> Set[str]:
     return recipients
 
 def yesno(b: Union[bool, str]) -> str:
-    if b is True:
-        return "yes"
-    elif b is False:
-        return "no"
+    if isinstance(b, bool):
+        return "yes" if b else "no"
     else:
         return b
