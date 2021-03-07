@@ -25,7 +25,7 @@ from email.utils import format_datetime
 import sys
 from typing import Any, Dict, List, Optional, Set, Union
 from outgoing import OpenClosable, Password, Path
-from pydantic import Field, PrivateAttr
+from pydantic import Field, PrivateAttr, validator
 import requests
 
 if sys.version_info[:2] >= (3, 8):
@@ -60,6 +60,14 @@ class MailgunSender(OpenClosable):
     headers: Dict[str, str] = Field(default_factory=dict)
     variables: Dict[str, str] = Field(default_factory=dict)
     _client: Optional[requests.Session] = PrivateAttr(None)
+
+    @validator("deliverytime")
+    def _make_deliverytime_aware(
+        cls, v: Optional[datetime]  # noqa: B902
+    ) -> Optional[datetime]:
+        if v is not None and v.tzinfo is None:
+            v = v.astimezone()
+        return v
 
     def open(self) -> None:
         self._client = requests.Session()

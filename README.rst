@@ -57,7 +57,7 @@ the following configuration fields are recognized:
 
 ``deliverytime`` : datetime (optional)
     Desired time of delivery for sent e-mails; if no timezone offset is given,
-    it is assumed to be in UTC
+    it is assumed to be in the local system timezone
 
 ``dkim`` : boolean (optional)
     Enable/disable DKIM signatures on sent e-mails
