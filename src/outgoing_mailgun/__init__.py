@@ -1,3 +1,15 @@
+"""
+outgoing extension for Mailgun
+
+Visit <https://github.com/jwodder/outgoing-mailgun> for more information.
+"""
+
+__version__      = '0.1.0.dev1'
+__author__       = 'John Thorvald Wodder II'
+__author_email__ = 'outgoing-mailgun@varonathe.org'
+__license__      = 'MIT'
+__url__          = 'https://github.com/jwodder/outgoing-mailgun'
+
 from datetime import datetime
 from email.headerregistry import AddressHeader
 from email.message import EmailMessage
