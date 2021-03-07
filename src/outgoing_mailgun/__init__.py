@@ -33,6 +33,8 @@ if sys.version_info[:2] >= (3, 8):
 else:
     from typing_extensions import Literal
 
+__all__ = ["MailgunSender"]
+
 
 class MailgunPassword(Password):
     @staticmethod
