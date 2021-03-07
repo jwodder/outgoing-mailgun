@@ -25,7 +25,7 @@ from email.utils import format_datetime
 import sys
 from typing import Any, Dict, List, Optional, Set, Union
 from outgoing import OpenClosable, Password, Path
-from pydantic import Field, PrivateAttr, validator
+from pydantic import Field, HttpUrl, PrivateAttr, validator
 import requests
 
 if sys.version_info[:2] >= (3, 8):
@@ -48,6 +48,7 @@ class MailgunSender(OpenClosable):
     configpath: Optional[Path]
     domain: str
     api_key: MailgunPassword = Field(alias="api-key")
+    base_url: HttpUrl = Field("https://api.mailgun.net", alias="base-url")
     tags: List[str] = Field(default_factory=list)
     deliverytime: Optional[datetime]
     dkim: Optional[bool]
@@ -102,8 +103,9 @@ class MailgunSender(OpenClosable):
                 data[f"h:{k}"] = v
             for k, v in self.variables.items():
                 data[f"v:{k}"] = v
+            base_url = str(self.base_url).rstrip("/")
             r = self._client.post(
-                f"https://api.mailgun.net/v3/{self.domain}/messages.mime",
+                f"{base_url}/v3/{self.domain}/messages.mime",
                 data=data,
                 files={"message": ("message.mime", str(msg))},
             )

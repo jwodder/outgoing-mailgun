@@ -34,6 +34,7 @@ def test_mailgun_construct_basic(
         "configpath": tmp_path / "foo.txt",
         "domain": "example.nil",
         "api_key": SecretStr("hunter2"),
+        "base_url": "https://api.mailgun.net",
         "tags": [],
         "deliverytime": None,
         "dkim": None,

@@ -52,6 +52,12 @@ the following configuration fields are recognized:
 .. _the outgoing documentation on passwords:
    https://outgoing.readthedocs.io/en/latest/configuration.html#passwords
 
+``base-url`` : HTTP URL (optional)
+    The base URL to use for Mailgun API requests.  This should be either
+    ``"https://api.mailgun.net"`` (the default) for domains in Mailgun's US
+    region or ``"https://api.eu.mailgun.net"`` for domains in Mailgun's EU
+    region.  Trailing slashes on the URL are optional.
+
 ``tags`` : list of strings (optional)
     A set of tags to apply to sent e-mails
 
