@@ -1,12 +1,28 @@
 from datetime import datetime, timedelta, timezone
+from email.message import EmailMessage
 from pathlib import Path
 import time
-from typing import Iterator
+from typing import Any, Dict, Iterator
 from outgoing import from_dict
 from pydantic import SecretStr
 import pytest
 from pytest_mock import MockerFixture
+import requests
 from outgoing_mailgun import MailgunSender
+
+msg = EmailMessage()
+msg["Subject"] = "Meet me"
+msg["To"] = "my.beloved@love.love"
+msg["From"] = "me@here.qq"
+msg.set_content(
+    "Oh my beloved!\n"
+    "\n"
+    "Wilt thou dine with me on the morrow?\n"
+    "\n"
+    "We're having hot pockets.\n"
+    "\n"
+    "Love, Me\n"
+)
 
 
 @pytest.fixture()
@@ -137,3 +153,133 @@ def test_mailgun_construct_none_deliverytime() -> None:
     )
     assert isinstance(sender, MailgunSender)
     assert sender.deliverytime is None
+
+
+def test_mailgun_auth() -> None:
+    sender = from_dict(
+        {
+            "method": "mailgun",
+            "domain": "example.nil",
+            "api-key": "hunter2",
+        },
+    )
+    assert isinstance(sender, MailgunSender)
+    with sender:
+        assert isinstance(sender._client, requests.Session)
+        assert sender._client.auth == ("api", "hunter2")
+    assert sender._client is None
+
+
+@pytest.mark.parametrize(
+    "config,data",
+    [
+        ({}, {}),
+        (
+            {
+                "tags": ["foo"],
+                "deliverytime": datetime(
+                    2021, 3, 8, 10, 36, 31, tzinfo=timezone(timedelta(hours=-5))
+                ),
+                "dkim": True,
+                "testmode": True,
+                "tracking": True,
+                "tracking-clicks": True,
+                "tracking-opens": True,
+                "headers": {
+                    "Reply-To": "reply.hole@over.there",
+                    "User-Agent": "outgoing-mailgun",
+                },
+                "variables": {"foo": "bar", "gnusto": "cleesh"},
+            },
+            {
+                "o:tag": ["foo"],
+                "o:deliverytime": "Mon, 08 Mar 2021 10:36:31 -0500",
+                "o:dkim": "yes",
+                "o:testmode": "yes",
+                "o:tracking": "yes",
+                "o:tracking-clicks": "yes",
+                "o:tracking-opens": "yes",
+                "h:Reply-To": "reply.hole@over.there",
+                "h:User-Agent": "outgoing-mailgun",
+                "v:foo": "bar",
+                "v:gnusto": "cleesh",
+            },
+        ),
+        (
+            {
+                "tags": ["foo", "bar"],
+                "dkim": False,
+                "testmode": False,
+                "tracking": False,
+                "tracking-clicks": False,
+                "tracking-opens": False,
+            },
+            {
+                "o:tag": ["foo", "bar"],
+                "o:dkim": "no",
+                "o:testmode": "no",
+                "o:tracking": "no",
+                "o:tracking-clicks": "no",
+                "o:tracking-opens": "no",
+            },
+        ),
+        ({"tracking-clicks": "htmlonly"}, {"o:tracking-clicks": "htmlonly"}),
+    ],
+)
+def test_send_payload(
+    config: Dict[str, Any], data: Dict[str, Any], mocker: MockerFixture
+) -> None:
+    m = mocker.patch("requests.Session", autospec=True)
+    sender = from_dict(
+        {"method": "mailgun", "domain": "example.nil", "api-key": "hunter2", **config}
+    )
+    with sender as s:
+        assert sender is s
+        sender.send(msg)
+    m.return_value.post.assert_called_once_with(
+        "https://api.mailgun.net/v3/example.nil/messages.mime",
+        data={"to": "my.beloved@love.love", **data},
+        files={"message": ("message.mime", str(msg))},
+    )
+
+
+def test_send_payload_base_url_trailing_slash(mocker: MockerFixture) -> None:
+    m = mocker.patch("requests.Session", autospec=True)
+    sender = from_dict(
+        {
+            "method": "mailgun",
+            "domain": "example.nil",
+            "api-key": "hunter2",
+            "base-url": "https://api.eu.mailgun.net/",
+        }
+    )
+    with sender:
+        sender.send(msg)
+    m.return_value.post.assert_called_once_with(
+        "https://api.eu.mailgun.net/v3/example.nil/messages.mime",
+        data={"to": "my.beloved@love.love"},
+        files={"message": ("message.mime", str(msg))},
+    )
+
+
+def test_mailgun_send_no_context(mocker: MockerFixture) -> None:
+    m = mocker.patch("requests.Session", autospec=True)
+    sender = from_dict(
+        {"method": "mailgun", "domain": "example.nil", "api-key": "hunter2"}
+    )
+    sender.send(msg)
+    m.return_value.post.assert_called_once_with(
+        "https://api.mailgun.net/v3/example.nil/messages.mime",
+        data={"to": "my.beloved@love.love"},
+        files={"message": ("message.mime", str(msg))},
+    )
+
+
+def test_mailgun_close_unopened() -> None:
+    sender = from_dict(
+        {"method": "mailgun", "domain": "example.nil", "api-key": "hunter2"}
+    )
+    assert isinstance(sender, MailgunSender)
+    with pytest.raises(ValueError) as excinfo:
+        sender.close()
+    assert str(excinfo.value) == "MailgunSender is not open"
