@@ -23,7 +23,7 @@ from email.headerregistry import AddressHeader
 from email.message import EmailMessage
 from email.utils import format_datetime
 import sys
-from typing import Any, Dict, List, Optional, Set, Union, cast
+from typing import Any, Dict, List, Optional, Union, cast
 from outgoing import OpenClosable, Password, Path
 from pydantic import Field, HttpUrl, PrivateAttr, parse_obj_as, validator
 import requests
@@ -114,14 +114,14 @@ class MailgunSender(OpenClosable):
             r.raise_for_status()
 
 
-def extract_recipients(msg: EmailMessage) -> Set[str]:
+def extract_recipients(msg: EmailMessage) -> List[str]:
     recipients = set()
     for key in ["To", "CC", "BCC"]:
-        for header in msg.get_all(key):
+        for header in msg.get_all(key, []):
             assert isinstance(header, AddressHeader)
             for addr in header.addresses:
                 recipients.add(addr.addr_spec)
-    return recipients
+    return sorted(recipients)
 
 
 def yesno(b: Union[bool, str]) -> str:
