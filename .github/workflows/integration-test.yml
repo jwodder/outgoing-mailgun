@@ -1,0 +1,38 @@
+name: Integration Test
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.6'
+        toxenv:
+          - py
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install --upgrade --upgrade-strategy=eager tox
+
+      - name: Run integration tests
+        run: tox -e ${{ matrix.toxenv }}
+        env:
+          TOX_TESTENV_PASSENV: "MAILGUN_DOMAIN MAILGUN_API_KEY"
+          MAILGUN_DOMAIN: ${{ secrets.MAILGUN_DOMAIN }}
+          MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
+
+# vim:set et sts=2:
