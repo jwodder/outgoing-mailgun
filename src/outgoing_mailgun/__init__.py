@@ -66,7 +66,7 @@ class MailgunSender(OpenClosable):
 
     @validator("deliverytime")
     def _make_deliverytime_aware(
-        cls, v: Optional[datetime]  # noqa: B902
+        cls, v: Optional[datetime]  # noqa: B902, U100
     ) -> Optional[datetime]:
         if v is not None and v.tzinfo is None:
             v = v.astimezone()

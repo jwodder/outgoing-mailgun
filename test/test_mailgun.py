@@ -94,7 +94,8 @@ def test_mailgun_construct_api_key_lookup_custom_base_url(
     )
 
 
-def test_mailgun_construct_naive_deliverytime(pacific_timezone: None) -> None:
+@pytest.mark.usefixtures("pacific_timezone")
+def test_mailgun_construct_naive_deliverytime() -> None:
     sender = from_dict(
         {
             "method": "mailgun",
@@ -109,7 +110,8 @@ def test_mailgun_construct_naive_deliverytime(pacific_timezone: None) -> None:
     )
 
 
-def test_mailgun_construct_aware_deliverytime(pacific_timezone: None) -> None:
+@pytest.mark.usefixtures("pacific_timezone")
+def test_mailgun_construct_aware_deliverytime() -> None:
     sender = from_dict(
         {
             "method": "mailgun",
@@ -124,7 +126,7 @@ def test_mailgun_construct_aware_deliverytime(pacific_timezone: None) -> None:
     )
 
 
-def test_mailgun_construct_none_deliverytime(pacific_timezone: None) -> None:
+def test_mailgun_construct_none_deliverytime() -> None:
     sender = from_dict(
         {
             "method": "mailgun",
