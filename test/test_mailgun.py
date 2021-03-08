@@ -5,6 +5,7 @@ from typing import Iterator
 from outgoing import from_dict
 from pydantic import SecretStr
 import pytest
+from pytest_mock import MockerFixture
 from outgoing_mailgun import MailgunSender
 
 
@@ -46,6 +47,51 @@ def test_mailgun_construct_basic(
         "variables": {},
     }
     assert sender._client is None
+
+
+def test_mailgun_construct_api_key_lookup(
+    mocker: MockerFixture, tmp_path: Path
+) -> None:
+    m = mocker.patch("outgoing.core.resolve_password", return_value="12345")
+    sender = from_dict(
+        {
+            "method": "mailgun",
+            "domain": "example.nil",
+            "api-key": "sentinel",
+        },
+        configpath=str(tmp_path / "foo.txt"),
+    )
+    assert isinstance(sender, MailgunSender)
+    assert sender.api_key == SecretStr("12345")
+    m.assert_called_once_with(
+        "sentinel",
+        host="api.mailgun.net",
+        username="example.nil",
+        configpath=tmp_path / "foo.txt",
+    )
+
+
+def test_mailgun_construct_api_key_lookup_custom_base_url(
+    mocker: MockerFixture, tmp_path: Path
+) -> None:
+    m = mocker.patch("outgoing.core.resolve_password", return_value="12345")
+    sender = from_dict(
+        {
+            "method": "mailgun",
+            "domain": "example.nil",
+            "base-url": "https://api.eu.mailgun.net/",
+            "api-key": "sentinel",
+        },
+        configpath=str(tmp_path / "foo.txt"),
+    )
+    assert isinstance(sender, MailgunSender)
+    assert sender.api_key == SecretStr("12345")
+    m.assert_called_once_with(
+        "sentinel",
+        host="api.eu.mailgun.net",
+        username="example.nil",
+        configpath=tmp_path / "foo.txt",
+    )
 
 
 def test_mailgun_construct_naive_deliverytime(pacific_timezone: None) -> None:

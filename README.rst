@@ -40,23 +40,29 @@ Configuration
 When using "mailgun" as the sending method in an ``outgoing`` configuration,
 the following configuration fields are recognized:
 
-``domain`` : string (required)
-    The domain name you registered with Mailgun
-
-``api-key`` : password (required)
-    A Mailgun API key for your domain; see |the outgoing documentation on
-    passwords|_ for ways to write this field
-
-.. |the outgoing documentation on passwords|
-   replace:: the ``outgoing`` documentation on passwords
-.. _the outgoing documentation on passwords:
-   https://outgoing.readthedocs.io/en/latest/configuration.html#passwords
-
 ``base-url`` : HTTP URL (optional)
     The base URL to use for Mailgun API requests.  This should be either
     ``"https://api.mailgun.net"`` (the default) for domains in Mailgun's US
     region or ``"https://api.eu.mailgun.net"`` for domains in Mailgun's EU
     region.  Trailing slashes on the URL are optional.
+
+``domain`` : string (required)
+    The domain name you registered with Mailgun for sending e-mail
+
+``api-key`` : password (required)
+    A Mailgun API key for your domain; see |the outgoing documentation on
+    passwords|_ for ways to write this field.
+
+    .. |the outgoing documentation on passwords|
+       replace:: the ``outgoing`` documentation on passwords
+    .. _the outgoing documentation on passwords:
+       https://outgoing.readthedocs.io/en/latest/configuration.html#passwords
+
+    When using the ``keyring`` password scheme or another scheme that takes
+    optional host/service and username fields, if the service and/or username
+    is not supplied in the password specifier, then the service defaults to the
+    domain name of the ``base-url`` field, and the username defaults to the
+    value of the ``domain`` field.
 
 ``tags`` : list of strings (optional)
     A set of tags to apply to sent e-mails

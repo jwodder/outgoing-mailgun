@@ -23,9 +23,9 @@ from email.headerregistry import AddressHeader
 from email.message import EmailMessage
 from email.utils import format_datetime
 import sys
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, Dict, List, Optional, Set, Union, cast
 from outgoing import OpenClosable, Password, Path
-from pydantic import Field, HttpUrl, PrivateAttr, validator
+from pydantic import Field, HttpUrl, PrivateAttr, parse_obj_as, validator
 import requests
 
 if sys.version_info[:2] >= (3, 8):
@@ -39,16 +39,18 @@ __all__ = ["MailgunSender"]
 class MailgunPassword(Password):
     @staticmethod
     def host(values: Dict[str, Any]) -> str:
-        return "api.mailgun.net"
+        return cast(str, values["base_url"].host)
 
     username = "domain"
 
 
 class MailgunSender(OpenClosable):
     configpath: Optional[Path]
+    base_url: HttpUrl = Field(
+        parse_obj_as(HttpUrl, "https://api.mailgun.net"), alias="base-url"
+    )
     domain: str
     api_key: MailgunPassword = Field(alias="api-key")
-    base_url: HttpUrl = Field("https://api.mailgun.net", alias="base-url")
     tags: List[str] = Field(default_factory=list)
     deliverytime: Optional[datetime]
     dkim: Optional[bool]
