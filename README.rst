@@ -116,3 +116,15 @@ Example Configuration
     tracking-clicks = "htmlonly"
     headers = { Reply-To = "me@mydomain.nil" }
     variables = { sender = "outgoing", foo = "bar" }
+
+
+Sender-Specific Behavior
+========================
+
+The ``MailgunSender`` class provided by this extension is a reentrant__ and
+reusable__ context manager, and its ``send()`` method can be called outside of
+a context.  In addition, on success, the ``send()`` method returns the message
+ID of the newly-sent e-mail (without enclosing angle brackets).
+
+__ https://docs.python.org/3/library/contextlib.html#reentrant-context-managers
+__ https://docs.python.org/3/library/contextlib.html#reusable-context-managers

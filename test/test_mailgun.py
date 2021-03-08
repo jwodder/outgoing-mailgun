@@ -46,12 +46,12 @@ def post_mock(mocker: MockerFixture) -> Iterator[PostMock]:
     m = mocker.patch.object(
         requests.Session,
         "post",
-        **{
+        **{  # type: ignore[arg-type]
             "return_value.json.return_value": {
                 "id": f"<{msg_id}>",
                 "message": "Queued. Thank you.",
             }
-        },  # type: ignore[arg-type]
+        },
     )
     yield PostMock(mock=m, msg_id=msg_id)
 
