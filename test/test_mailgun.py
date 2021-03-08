@@ -2,7 +2,8 @@ from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
 from pathlib import Path
 import time
-from typing import Any, Dict, Iterator
+from typing import Any, Dict, Iterator, NamedTuple
+from unittest.mock import MagicMock
 from outgoing import from_dict
 from pydantic import SecretStr
 import pytest
@@ -32,6 +33,27 @@ def pacific_timezone(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
         time.tzset()
         yield
     time.tzset()
+
+
+class PostMock(NamedTuple):
+    mock: MagicMock
+    msg_id: str
+
+
+@pytest.fixture()
+def post_mock(mocker: MockerFixture) -> Iterator[PostMock]:
+    msg_id = "20210308184521.1.9AE5400C1FA672B2@example.nil"
+    m = mocker.patch.object(
+        requests.Session,
+        "post",
+        **{
+            "return_value.json.return_value": {
+                "id": f"<{msg_id}>",
+                "message": "Queued. Thank you.",
+            }
+        },  # type: ignore[arg-type]
+    )
+    yield PostMock(mock=m, msg_id=msg_id)
 
 
 def test_mailgun_construct_basic(
@@ -227,24 +249,23 @@ def test_mailgun_auth() -> None:
     ],
 )
 def test_send_payload(
-    config: Dict[str, Any], data: Dict[str, Any], mocker: MockerFixture
+    config: Dict[str, Any], data: Dict[str, Any], post_mock: PostMock
 ) -> None:
-    m = mocker.patch("requests.Session", autospec=True)
     sender = from_dict(
         {"method": "mailgun", "domain": "example.nil", "api-key": "hunter2", **config}
     )
     with sender as s:
         assert sender is s
-        sender.send(msg)
-    m.return_value.post.assert_called_once_with(
+        mid = sender.send(msg)
+    assert mid == post_mock.msg_id
+    post_mock.mock.assert_called_once_with(
         "https://api.mailgun.net/v3/example.nil/messages.mime",
         data={"to": "my.beloved@love.love", **data},
         files={"message": ("message.mime", str(msg))},
     )
 
 
-def test_send_payload_base_url_trailing_slash(mocker: MockerFixture) -> None:
-    m = mocker.patch("requests.Session", autospec=True)
+def test_send_payload_base_url_trailing_slash(post_mock: PostMock) -> None:
     sender = from_dict(
         {
             "method": "mailgun",
@@ -254,21 +275,22 @@ def test_send_payload_base_url_trailing_slash(mocker: MockerFixture) -> None:
         }
     )
     with sender:
-        sender.send(msg)
-    m.return_value.post.assert_called_once_with(
+        mid = sender.send(msg)
+    assert mid == post_mock.msg_id
+    post_mock.mock.assert_called_once_with(
         "https://api.eu.mailgun.net/v3/example.nil/messages.mime",
         data={"to": "my.beloved@love.love"},
         files={"message": ("message.mime", str(msg))},
     )
 
 
-def test_mailgun_send_no_context(mocker: MockerFixture) -> None:
-    m = mocker.patch("requests.Session", autospec=True)
+def test_mailgun_send_no_context(post_mock: PostMock) -> None:
     sender = from_dict(
         {"method": "mailgun", "domain": "example.nil", "api-key": "hunter2"}
     )
-    sender.send(msg)
-    m.return_value.post.assert_called_once_with(
+    mid = sender.send(msg)
+    assert mid == post_mock.msg_id
+    post_mock.mock.assert_called_once_with(
         "https://api.mailgun.net/v3/example.nil/messages.mime",
         data={"to": "my.beloved@love.love"},
         files={"message": ("message.mime", str(msg))},

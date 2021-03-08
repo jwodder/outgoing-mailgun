@@ -82,7 +82,7 @@ class MailgunSender(OpenClosable):
         self._client.close()
         self._client = None
 
-    def send(self, msg: EmailMessage) -> None:
+    def send(self, msg: EmailMessage) -> str:
         with self:
             assert self._client is not None
             data: Dict[str, Union[str, List[str]]]
@@ -112,6 +112,9 @@ class MailgunSender(OpenClosable):
                 files={"message": ("message.mime", str(msg))},
             )
             r.raise_for_status()
+            msg_id = r.json()["id"]
+            assert isinstance(msg_id, str)
+            return msg_id.strip("<>")
 
 
 def extract_recipients(msg: EmailMessage) -> List[str]:
