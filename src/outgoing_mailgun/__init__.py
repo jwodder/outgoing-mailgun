@@ -12,18 +12,18 @@ your ``outgoing`` configuration.
 Visit <https://github.com/jwodder/outgoing-mailgun> for more information.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0.dev1"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "outgoing-mailgun@varonathe.org"
 __license__ = "MIT"
 __url__ = "https://github.com/jwodder/outgoing-mailgun"
 
 from datetime import datetime
-from email.headerregistry import AddressHeader
 from email.message import EmailMessage
 from email.utils import format_datetime
 import sys
 from typing import Any, Dict, List, Optional, Union, cast
+from mailbits import recipient_addresses
 from outgoing import OpenClosable, Password, Path
 from pydantic import Field, HttpUrl, PrivateAttr, parse_obj_as, validator
 import requests
@@ -86,7 +86,7 @@ class MailgunSender(OpenClosable):
         with self:
             assert self._client is not None
             data: Dict[str, Union[str, List[str]]]
-            data = {"to": ", ".join(extract_recipients(msg))}
+            data = {"to": ", ".join(recipient_addresses(msg))}
             if self.tags:
                 data["o:tag"] = self.tags
             if self.deliverytime is not None:
@@ -115,16 +115,6 @@ class MailgunSender(OpenClosable):
             msg_id = r.json()["id"]
             assert isinstance(msg_id, str)
             return msg_id.strip("<>")
-
-
-def extract_recipients(msg: EmailMessage) -> List[str]:
-    recipients = set()
-    for key in ["To", "CC", "BCC"]:
-        for header in msg.get_all(key, []):
-            assert isinstance(header, AddressHeader)
-            for addr in header.addresses:
-                recipients.add(addr.addr_spec)
-    return sorted(recipients)
 
 
 def yesno(b: Union[bool, str]) -> str:

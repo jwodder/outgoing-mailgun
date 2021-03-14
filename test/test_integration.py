@@ -1,10 +1,11 @@
 from email.message import EmailMessage
 import os
 from time import sleep, time
+from mailbits import recipient_addresses
 from outgoing import from_dict
 import pytest
 import requests
-from outgoing_mailgun import MailgunSender, extract_recipients
+from outgoing_mailgun import MailgunSender
 
 
 def test_mailgun_integration() -> None:
@@ -44,7 +45,7 @@ def test_mailgun_integration() -> None:
     assert isinstance(sender, MailgunSender)
     with sender:
         msg_id = sender.send(msg)
-    recipients = extract_recipients(msg)
+    recipients = recipient_addresses(msg)
     with requests.Session() as s:
         s.auth = ("api", mailgun_api_key)
         for _ in range(30):
