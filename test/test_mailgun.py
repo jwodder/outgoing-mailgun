@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
+import logging
 from pathlib import Path
 import time
 from typing import Any, Dict, Iterator, NamedTuple
@@ -249,8 +250,12 @@ def test_mailgun_auth() -> None:
     ],
 )
 def test_send_payload(
-    config: Dict[str, Any], data: Dict[str, Any], post_mock: PostMock
+    caplog: pytest.LogCaptureFixture,
+    config: Dict[str, Any],
+    data: Dict[str, Any],
+    post_mock: PostMock,
 ) -> None:
+    caplog.set_level(logging.DEBUG, logger="outgoing_mailgun")
     sender = from_dict(
         {"method": "mailgun", "domain": "example.nil", "api-key": "hunter2", **config}
     )
@@ -263,6 +268,13 @@ def test_send_payload(
         data={"to": "my.beloved@love.love", **data},
         files={"message": ("message.mime", str(msg))},
     )
+    assert caplog.record_tuples == [
+        (
+            "outgoing_mailgun",
+            logging.INFO,
+            f"Sending e-mail {msg['Subject']!r} via Mailgun",
+        ),
+    ]
 
 
 def test_send_payload_base_url_trailing_slash(post_mock: PostMock) -> None:

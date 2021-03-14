@@ -20,6 +20,7 @@
 `GitHub <https://github.com/jwodder/outgoing-mailgun>`_
 | `PyPI <https://pypi.org/project/outgoing-mailgun/>`_
 | `Issues <https://github.com/jwodder/outgoing-mailgun/issues>`_
+| `Changelog <https://github.com/jwodder/outgoing-mailgun/blob/master/CHANGELOG.md>`_
 
 ``outgoing-mailgun`` is an extension for outgoing_ that adds the ability to
 send e-mails via Mailgun_.  Simply install ``outgoing-mailgun`` alongside

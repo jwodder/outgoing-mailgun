@@ -21,6 +21,7 @@ __url__ = "https://github.com/jwodder/outgoing-mailgun"
 from datetime import datetime
 from email.message import EmailMessage
 from email.utils import format_datetime
+import logging
 import sys
 from typing import Any, Dict, List, Optional, Union, cast
 from mailbits import recipient_addresses
@@ -34,6 +35,8 @@ else:
     from typing_extensions import Literal
 
 __all__ = ["MailgunSender"]
+
+log = logging.getLogger(__name__)
 
 
 class MailgunPassword(Password):
@@ -85,6 +88,9 @@ class MailgunSender(OpenClosable):
     def send(self, msg: EmailMessage) -> str:
         with self:
             assert self._client is not None
+            log.info(
+                "Sending e-mail %r via Mailgun", msg.get("Subject", "<NO SUBJECT>")
+            )
             data: Dict[str, Union[str, List[str]]]
             data = {"to": ", ".join(recipient_addresses(msg))}
             if self.tags:
