@@ -8,12 +8,10 @@ import requests
 from outgoing_mailgun import MailgunSender
 
 
+@pytest.mark.integration
 def test_mailgun_integration() -> None:
-    try:
-        mailgun_domain = os.environ["MAILGUN_DOMAIN"]
-        mailgun_api_key = os.environ["MAILGUN_API_KEY"]
-    except KeyError:
-        pytest.skip("Mailgun integration envvars not set")
+    mailgun_domain = os.environ["MAILGUN_DOMAIN"]
+    mailgun_api_key = os.environ["MAILGUN_API_KEY"]
     msg = EmailMessage()
     msg["Subject"] = "This is an integration test."
     # Mailgun requires the recipient addresses to look real, which seems to
