@@ -12,12 +12,13 @@ your ``outgoing`` configuration.
 Visit <https://github.com/jwodder/outgoing-mailgun> for more information.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1.dev1"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "outgoing-mailgun@varonathe.org"
 __license__ = "MIT"
 __url__ = "https://github.com/jwodder/outgoing-mailgun"
 
+from copy import deepcopy
 from datetime import datetime
 from email.message import EmailMessage
 from email.utils import format_datetime
@@ -93,6 +94,9 @@ class MailgunSender(OpenClosable):
             )
             data: Dict[str, Union[str, List[str]]]
             data = {"to": ", ".join(recipient_addresses(msg))}
+            if "BCC" in msg:
+                msg = deepcopy(msg)
+                del msg["BCC"]
             if self.tags:
                 data["o:tag"] = self.tags
             if self.deliverytime is not None:

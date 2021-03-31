@@ -309,6 +309,33 @@ def test_mailgun_send_no_context(post_mock: PostMock) -> None:
     )
 
 
+def test_mailgun_send_bcc(post_mock: PostMock) -> None:
+    sender = from_dict(
+        {"method": "mailgun", "domain": "example.nil", "api-key": "hunter2"}
+    )
+    bcc_msg = EmailMessage()
+    bcc_msg["Subject"] = "Meet me"
+    bcc_msg["To"] = "my.beloved@love.love"
+    bcc_msg["From"] = "me@here.qq"
+    bcc_msg["BCC"] = "ben.c.cilantro@secrets.nil"
+    bcc_msg.set_content(
+        "Oh my beloved!\n"
+        "\n"
+        "Wilt thou dine with me on the morrow?\n"
+        "\n"
+        "We're having hot pockets.\n"
+        "\n"
+        "Love, Me\n"
+    )
+    mid = sender.send(bcc_msg)
+    assert mid == post_mock.msg_id
+    post_mock.mock.assert_called_once_with(
+        "https://api.mailgun.net/v3/example.nil/messages.mime",
+        data={"to": "ben.c.cilantro@secrets.nil, my.beloved@love.love"},
+        files={"message": ("message.mime", str(msg))},
+    )
+
+
 def test_mailgun_close_unopened() -> None:
     sender = from_dict(
         {"method": "mailgun", "domain": "example.nil", "api-key": "hunter2"}
