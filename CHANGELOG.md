@@ -1,5 +1,5 @@
-v0.2.1 (in development)
------------------------
+v0.2.1 (2021-03-31)
+-------------------
 - BCC headers are now removed from e-mails before submitting to Mailgun, which
   does not remove BCC's itself
 
