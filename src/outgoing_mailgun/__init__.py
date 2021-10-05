@@ -12,7 +12,7 @@ your ``outgoing`` configuration.
 Visit <https://github.com/jwodder/outgoing-mailgun> for more information.
 """
 
-__version__ = "0.2.1"
+__version__ = "0.3.0.dev1"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "outgoing-mailgun@varonathe.org"
 __license__ = "MIT"

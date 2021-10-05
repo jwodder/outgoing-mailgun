@@ -1,3 +1,7 @@
+v0.3.0 (in development)
+-----------------------
+- Support Python 3.10
+
 v0.2.1 (2021-03-31)
 -------------------
 - BCC headers are now removed from e-mails before submitting to Mailgun, which
