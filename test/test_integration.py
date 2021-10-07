@@ -8,7 +8,10 @@ import requests
 from outgoing_mailgun import MailgunSender
 
 
-@pytest.mark.integration
+@pytest.mark.skipif(
+    "not config.getoption('--integration')",
+    reason="Only run when --integration is given",
+)
 def test_mailgun_integration() -> None:
     mailgun_domain = os.environ["MAILGUN_DOMAIN"]
     mailgun_api_key = os.environ["MAILGUN_API_KEY"]
