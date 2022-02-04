@@ -1,7 +1,7 @@
-from _pytest.config.argparsing import Parser
+import pytest
 
 
-def pytest_addoption(parser: Parser) -> None:
+def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--integration",
         action="store_true",
