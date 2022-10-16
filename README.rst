@@ -32,7 +32,7 @@ your ``outgoing`` configuration.
 
 Installation
 ============
-``outgoing-mailgun`` requires Python 3.6 or higher.  Just use `pip
+``outgoing-mailgun`` requires Python 3.7 or higher.  Just use `pip
 <https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install
 ``outgoing-mailgun`` and its dependencies (including ``outgoing``)::
 
