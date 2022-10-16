@@ -1,9 +1,11 @@
+from __future__ import annotations
+from collections.abc import Iterator
 from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
 import logging
 from pathlib import Path
 import time
-from typing import Any, Dict, Iterator, NamedTuple
+from typing import Any, NamedTuple
 from unittest.mock import MagicMock
 from outgoing import from_dict
 from pydantic import SecretStr
@@ -251,8 +253,8 @@ def test_mailgun_auth() -> None:
 )
 def test_send_payload(
     caplog: pytest.LogCaptureFixture,
-    config: Dict[str, Any],
-    data: Dict[str, Any],
+    config: dict[str, Any],
+    data: dict[str, Any],
     post_mock: PostMock,
 ) -> None:
     caplog.set_level(logging.DEBUG, logger="outgoing_mailgun")

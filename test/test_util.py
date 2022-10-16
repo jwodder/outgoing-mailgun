@@ -1,4 +1,4 @@
-from typing import Union
+from __future__ import annotations
 import pytest
 from outgoing_mailgun import yesno
 
@@ -11,5 +11,5 @@ from outgoing_mailgun import yesno
         ("htmlonly", "htmlonly"),
     ],
 )
-def test_yesno(b: Union[bool, str], out: str) -> None:
+def test_yesno(b: bool | str, out: str) -> None:
     assert yesno(b) == out

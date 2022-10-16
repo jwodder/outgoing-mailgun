@@ -12,19 +12,14 @@ your ``outgoing`` configuration.
 Visit <https://github.com/jwodder/outgoing-mailgun> for more information.
 """
 
-__version__ = "0.3.0.dev1"
-__author__ = "John Thorvald Wodder II"
-__author_email__ = "outgoing-mailgun@varonathe.org"
-__license__ = "MIT"
-__url__ = "https://github.com/jwodder/outgoing-mailgun"
-
+from __future__ import annotations
 from copy import deepcopy
 from datetime import datetime
 from email.message import EmailMessage
 from email.utils import format_datetime
 import logging
 import sys
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, cast
 from mailbits import recipient_addresses
 from outgoing import OpenClosable, Password, Path
 from pydantic import Field, HttpUrl, PrivateAttr, parse_obj_as, validator
@@ -35,6 +30,12 @@ if sys.version_info[:2] >= (3, 8):
 else:
     from typing_extensions import Literal
 
+__version__ = "0.3.0.dev1"
+__author__ = "John Thorvald Wodder II"
+__author_email__ = "outgoing-mailgun@varonathe.org"
+__license__ = "MIT"
+__url__ = "https://github.com/jwodder/outgoing-mailgun"
+
 __all__ = ["MailgunSender"]
 
 log = logging.getLogger(__name__)
@@ -42,7 +43,7 @@ log = logging.getLogger(__name__)
 
 class MailgunPassword(Password):
     @staticmethod
-    def host(values: Dict[str, Any]) -> str:
+    def host(values: dict[str, Any]) -> str:
         return cast(str, values["base_url"].host)
 
     username = "domain"
@@ -92,7 +93,7 @@ class MailgunSender(OpenClosable):
             log.info(
                 "Sending e-mail %r via Mailgun", msg.get("Subject", "<NO SUBJECT>")
             )
-            data: Dict[str, Union[str, List[str]]]
+            data: dict[str, str | list[str]]
             data = {"to": ", ".join(recipient_addresses(msg))}
             if "BCC" in msg:
                 msg = deepcopy(msg)
@@ -127,7 +128,7 @@ class MailgunSender(OpenClosable):
             return msg_id.strip("<>")
 
 
-def yesno(b: Union[bool, str]) -> str:
+def yesno(b: bool | str) -> str:
     if isinstance(b, bool):
         return "yes" if b else "no"
     else:
