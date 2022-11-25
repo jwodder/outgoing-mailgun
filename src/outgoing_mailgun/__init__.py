@@ -77,7 +77,7 @@ class MailgunSender(OpenClosable):
             v = v.astimezone()
         return v
 
-    def open(self) -> None:
+    def open(self) -> None:  # noqa: A003
         self._client = requests.Session()
         self._client.auth = ("api", self.api_key.get_secret_value())
 
