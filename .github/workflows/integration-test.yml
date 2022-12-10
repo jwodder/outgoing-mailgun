@@ -31,7 +31,7 @@ jobs:
       - name: Run integration tests
         run: tox -e ${{ matrix.toxenv }} -- --integration
         env:
-          TOX_TESTENV_PASSENV: "MAILGUN_DOMAIN MAILGUN_API_KEY"
+          TOX_TESTENV_PASSENV: "MAILGUN_DOMAIN,MAILGUN_API_KEY"
           MAILGUN_DOMAIN: ${{ secrets.MAILGUN_DOMAIN }}
           MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
 
