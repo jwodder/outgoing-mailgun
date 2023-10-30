@@ -2,6 +2,8 @@ v0.3.0 (in development)
 -----------------------
 - Support Python 3.10, 3.11, and 3.12
 - Drop support for Python 3.6
+- Update pydantic to v2.0
+- Update outgoing minimum version to 0.6
 
 v0.2.1 (2021-03-31)
 -------------------

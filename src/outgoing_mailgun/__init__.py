@@ -22,7 +22,7 @@ import sys
 from typing import Any, Dict, List, Optional, cast
 from mailbits import recipient_addresses
 from outgoing import OpenClosable, Password, Path
-from pydantic import Field, HttpUrl, PrivateAttr, parse_obj_as, validator
+from pydantic import Field, HttpUrl, PrivateAttr, TypeAdapter, field_validator
 import requests
 
 if sys.version_info[:2] >= (3, 8):
@@ -49,27 +49,30 @@ class MailgunPassword(Password):
     username = "domain"
 
 
+def default_base_url() -> HttpUrl:
+    adapter = TypeAdapter(HttpUrl)
+    return adapter.validate_python("https://api.mailgun.net")
+
+
 class MailgunSender(OpenClosable):
-    configpath: Optional[Path]
-    base_url: HttpUrl = Field(
-        parse_obj_as(HttpUrl, "https://api.mailgun.net"), alias="base-url"
-    )
+    configpath: Optional[Path] = None
+    base_url: HttpUrl = Field(default_base_url(), alias="base-url")
     domain: str
     api_key: MailgunPassword = Field(alias="api-key")
     tags: List[str] = Field(default_factory=list)
-    deliverytime: Optional[datetime]
-    dkim: Optional[bool]
-    testmode: Optional[bool]
-    tracking: Optional[bool]
+    deliverytime: Optional[datetime] = None
+    dkim: Optional[bool] = None
+    testmode: Optional[bool] = None
+    tracking: Optional[bool] = None
     tracking_clicks: Optional[Literal[False, True, "htmlonly"]] = Field(
-        alias="tracking-clicks"
+        None, alias="tracking-clicks"
     )
-    tracking_opens: Optional[bool] = Field(alias="tracking-opens")
+    tracking_opens: Optional[bool] = Field(None, alias="tracking-opens")
     headers: Dict[str, str] = Field(default_factory=dict)
     variables: Dict[str, str] = Field(default_factory=dict)
     _client: Optional[requests.Session] = PrivateAttr(None)
 
-    @validator("deliverytime")
+    @field_validator("deliverytime")
     def _make_deliverytime_aware(
         cls, v: Optional[datetime]  # noqa: B902, U100
     ) -> Optional[datetime]:
