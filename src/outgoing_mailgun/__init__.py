@@ -30,7 +30,7 @@ if sys.version_info[:2] >= (3, 8):
 else:
     from typing_extensions import Literal
 
-__version__ = "0.4.0.dev1"
+__version__ = "0.3.1"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "outgoing-mailgun@varonathe.org"
 __license__ = "MIT"
