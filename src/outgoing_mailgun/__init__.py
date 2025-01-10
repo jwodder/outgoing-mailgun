@@ -18,19 +18,13 @@ from datetime import datetime
 from email.message import EmailMessage
 from email.utils import format_datetime
 import logging
-import sys
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Literal, Optional, cast
 from mailbits import recipient_addresses
 from outgoing import OpenClosable, Password, Path
 from pydantic import Field, HttpUrl, PrivateAttr, TypeAdapter, field_validator
 import requests
 
-if sys.version_info[:2] >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
-__version__ = "0.3.1"
+__version__ = "0.3.2.dev1"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "outgoing-mailgun@varonathe.org"
 __license__ = "MIT"
@@ -56,7 +50,7 @@ def default_base_url() -> HttpUrl:
 
 class MailgunSender(OpenClosable):
     configpath: Optional[Path] = None
-    base_url: HttpUrl = Field(default_base_url(), alias="base-url")
+    base_url: HttpUrl = Field(default_factory=default_base_url, alias="base-url")
     domain: str
     api_key: MailgunPassword = Field(alias="api-key")
     tags: List[str] = Field(default_factory=list)

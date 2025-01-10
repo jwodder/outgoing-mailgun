@@ -1,3 +1,7 @@
+v0.3.2 (in development)
+-----------------------
+- Remove unused `typing_extensions` dependency
+
 v0.3.1 (2024-12-01)
 -------------------
 - Migrated from setuptools to hatch
