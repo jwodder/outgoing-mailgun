@@ -1,5 +1,5 @@
-v0.3.2 (in development)
------------------------
+v0.3.2 (2025-01-10)
+-------------------
 - Remove unused `typing_extensions` dependency
 
 v0.3.1 (2024-12-01)

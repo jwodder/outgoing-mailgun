@@ -24,7 +24,7 @@ from outgoing import OpenClosable, Password, Path
 from pydantic import Field, HttpUrl, PrivateAttr, TypeAdapter, field_validator
 import requests
 
-__version__ = "0.3.2.dev1"
+__version__ = "0.3.2"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "outgoing-mailgun@varonathe.org"
 __license__ = "MIT"
