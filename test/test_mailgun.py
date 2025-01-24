@@ -8,7 +8,7 @@ import time
 from typing import Any, NamedTuple
 from unittest.mock import MagicMock
 from outgoing import from_dict
-from pydantic import SecretStr
+from pydantic import HttpUrl, SecretStr
 import pytest
 from pytest_mock import MockerFixture
 import requests
@@ -76,7 +76,7 @@ def test_mailgun_construct_basic(
         "configpath": tmp_path / "foo.txt",
         "domain": "example.nil",
         "api_key": SecretStr("hunter2"),
-        "base_url": "https://api.mailgun.net/",
+        "base_url": HttpUrl("https://api.mailgun.net/"),
         "tags": [],
         "deliverytime": None,
         "dkim": None,
