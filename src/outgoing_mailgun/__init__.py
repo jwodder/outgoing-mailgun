@@ -18,13 +18,13 @@ from datetime import datetime
 from email.message import EmailMessage
 from email.utils import format_datetime
 import logging
-from typing import Any, Dict, List, Literal, Optional, cast
+from typing import Any, Literal, cast
 from mailbits import recipient_addresses
 from outgoing import OpenClosable, Password, Path
 from pydantic import Field, HttpUrl, PrivateAttr, TypeAdapter, field_validator
 import requests
 
-__version__ = "0.3.2"
+__version__ = "0.4.0.dev1"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "outgoing-mailgun@varonathe.org"
 __license__ = "MIT"
@@ -49,27 +49,27 @@ def default_base_url() -> HttpUrl:
 
 
 class MailgunSender(OpenClosable):
-    configpath: Optional[Path] = None
+    configpath: Path | None = None
     base_url: HttpUrl = Field(default_factory=default_base_url, alias="base-url")
     domain: str
     api_key: MailgunPassword = Field(alias="api-key")
-    tags: List[str] = Field(default_factory=list)
-    deliverytime: Optional[datetime] = None
-    dkim: Optional[bool] = None
-    testmode: Optional[bool] = None
-    tracking: Optional[bool] = None
-    tracking_clicks: Optional[Literal[False, True, "htmlonly"]] = Field(
+    tags: list[str] = Field(default_factory=list)
+    deliverytime: datetime | None = None
+    dkim: bool | None = None
+    testmode: bool | None = None
+    tracking: bool | None = None
+    tracking_clicks: Literal[False, True, "htmlonly"] | None = Field(
         None, alias="tracking-clicks"
     )
-    tracking_opens: Optional[bool] = Field(None, alias="tracking-opens")
-    headers: Dict[str, str] = Field(default_factory=dict)
-    variables: Dict[str, str] = Field(default_factory=dict)
-    _client: Optional[requests.Session] = PrivateAttr(None)
+    tracking_opens: bool | None = Field(None, alias="tracking-opens")
+    headers: dict[str, str] = Field(default_factory=dict)
+    variables: dict[str, str] = Field(default_factory=dict)
+    _client: requests.Session | None = PrivateAttr(None)
 
     @field_validator("deliverytime")
     def _make_deliverytime_aware(
-        cls, v: Optional[datetime]  # noqa: B902, U100
-    ) -> Optional[datetime]:
+        cls, v: datetime | None  # noqa: B902, U100
+    ) -> datetime | None:
         if v is not None and v.tzinfo is None:
             v = v.astimezone()
         return v
